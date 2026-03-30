@@ -1,6 +1,7 @@
 function convertToRoman(num) {
-  if (!num) return "Вы ввели пустую строку";
-  if (num < 1 || num > 3999) return "Число вне диапазона (1-3999)";
+  if (!num) throw new TypeError("Вы ввели пустую строку");
+  if (num < 1 || num > 3999) throw new TypeError("Число вне диапазона (1-3999)");
+  if (!Number.isInteger(num)) throw new TypeError("Вы ввели не целое число");
 
   const romanMap = {
     M: 1000, CM: 900, D: 500, CD: 400,
@@ -16,12 +17,27 @@ function convertToRoman(num) {
       num -= romanMap[key];
     }
   }
-  if ( !result ) return "Вы ввели не число";
+
   return result;
 }
 
-
-console.log(convertToRoman(""));
-console.log(convertToRoman("sss"));
-console.log(convertToRoman(55));
-console.log(convertToRoman(3999));
+try {
+    console.log(convertToRoman(55));
+} catch (error) {
+    console.error(`${error.name}: ${error.message}`);
+}
+try {
+    console.log(convertToRoman(""));
+} catch (error) {
+    console.error(`${error.name}: ${error.message}`);
+}
+try {
+    console.log(convertToRoman("sss"));
+} catch (error) {
+    console.error(`${error.name}: ${error.message}`);
+}
+try {
+    console.error(convertToRoman(3.6));
+} catch (error) {
+    console.error(`${error.name}: ${error.message}`);
+}
