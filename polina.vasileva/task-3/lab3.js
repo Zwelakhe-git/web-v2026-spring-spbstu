@@ -1,14 +1,13 @@
 function rotateArray(arr, steps) {
     if (!Array.isArray(arr)) {
-        return "Первый аргумент должен быть массивом";
+        throw new TypeError("Первый аргумент должен быть массивом");
     }
-    steps = Number(steps);
 
     if (!Number.isInteger(steps)) {
-        return "Второй аргумент должен быть числом"
+        throw new TypeError("Второй аргумент должен быть целым числом");
     }
 
-    let n = arr.length;
+    const n = arr.length;
     let res = [];
     
     for (let i = 0; i < n; i++) {
@@ -18,7 +17,20 @@ function rotateArray(arr, steps) {
     return res;
 }
 
-console.log(rotateArray([1,2,3,4,5,6], "5")); 
-console.log(rotateArray([1,2,3,4,5,6], 2)); 
-console.log(rotateArray("", "5")); 
-console.log(rotateArray([1,2,3,4,5,6], "aa")); 
+try {
+    console.log(rotateArray([1,2,3,4,5,6], "5")); 
+} catch (error) {
+    console.error(`${error.name}: ${error.message}`);
+}
+
+try {
+    console.log(rotateArray([1,2,3,4,5,6], 2));
+} catch (error) {
+    console.error(`${error.name}: ${error.message}`);
+}
+
+try {
+    console.log(rotateArray("aaa", 5)); 
+} catch (error) {
+    console.error(`${error.name}: ${error.message}`);
+}
