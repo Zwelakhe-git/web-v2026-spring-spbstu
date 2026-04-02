@@ -4,7 +4,11 @@ function isBalanced(str) {
     for (let i = 0; i < str.length; i++) {
         if (str[i] == '(' || str[i] == '{' || str[i] == '[') {
             arr.push(str[i]);
-        } else {
+        } else if (str[i] == ')' || str[i] == '}' || str[i] == ']') {
+            if (arr.length === 0) {
+                flag = false;
+                break;
+            }
             let popedElem = arr.pop();
             if (popedElem == '(' && str[i] != ')'
                 || popedElem == '{' && str[i] != '}'
