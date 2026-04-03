@@ -80,9 +80,11 @@ body {
 }
 
 .recipe > ul {
+    max-height: 400px;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
 }
 
 .recipe ul ul li {
@@ -90,13 +92,13 @@ body {
     padding-bottom: 5px;
 }
 
-.ingredient-item, .new-ingredient-form, .step-item, .new-step-form {
+.recipe-input-form {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.add-ingredient-btn, .add-step-btn, .delete-ingredient-btn, .delete-step-btn {
+.recipe-btn {
     min-width: 25px;
     min-height: 25px;
     font-size: 12px;

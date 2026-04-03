@@ -27,25 +27,25 @@ function renderRecipes() {
                 <li><i>Ингредиенты:</i></li>
                 <ul>
                     ${recipe.ingredients.map(ingredient =>
-                        `<li class="ingredient-item">
+                        `<li class="recipe-input-form ingredient-item">
                             <span>${ingredient}</span>
-                            <button class="delete-ingredient-btn" type="button">-</button>
+                            <button class="recipe-btn delete-ingredient-btn" type="button">-</button>
                         </li>`).join('\n')}
-                    <div class="new-ingredient-form">
+                    <div class="recipe-input-form new-ingredient-form">
                         <input type="text" class="new-ingredient-input" name="new-ingredient" placeholder="Добавить ингредиент">
-                        <button class="add-ingredient-btn" type="button">+</button>
+                        <button class="recipe-btn add-ingredient-btn" type="button">+</button>
                     </div>
                 </ul>
                 <li><i>Шаги:</i></li>
                 <ul>
                     ${recipe.steps.map((step, index) =>
-                        `<li class="step-item">
+                        `<li class="recipe-input-form step-item">
                             <span>Шаг ${index + 1}: ${step}</span>
-                            <button class="delete-step-btn" type="button">-</button>
+                            <button class="recipe-btn delete-step-btn" type="button">-</button>
                         </li>`).join('\n')}
-                    <div class="new-step-form">
+                    <div class="recipe-input-form new-step-form">
                         <input type="text" class="new-step-input" name="new-step" placeholder="Добавить шаг">
-                        <button class="add-step-btn" type="button">+</button>
+                        <button class="recipe-btn add-step-btn" type="button">+</button>
                     </div>
                 </ul>
                 <li><i>Количество ингредиентов:</i> ${recipe.ingredientCount()}</li>
@@ -178,7 +178,6 @@ document.getElementById('add-recipe-btn').addEventListener('click', () => {
     stepsForm.value = '';
 
     addRecipe(title, ingredients, steps).then(newRecipe => {
-        console.log('Рецепт добавлен:', newRecipe.title);
         renderRecipes();
     }).catch(error => {
         console.error('Ошибка при добавлении рецепта:', error);
@@ -201,7 +200,6 @@ document.querySelector('.recipes').addEventListener('click', (event) => {
         if (newIngredient) {
             addIngredientToRecipe(title, newIngredient).then(() => {
                 input.value = '';
-                console.log(`Ингредиент "${newIngredient}" добавлен в рецепт "${title}"`);
                 renderRecipes();
             }).catch(error => {
                 console.error('Ошибка при добавлении ингредиента:', error);
@@ -219,7 +217,6 @@ document.querySelector('.recipes').addEventListener('click', (event) => {
         if (newStep) {
             addStepToRecipe(title, newStep).then(() => {
                 input.value = '';
-                console.log(`Шаг "${newStep}" добавлен в рецепт "${title}"`);
                 renderRecipes();
             }).catch(error => {
                 console.error('Ошибка при добавлении шага:', error);
@@ -234,7 +231,6 @@ document.querySelector('.recipes').addEventListener('click', (event) => {
         const ingredient = event.target.closest('.ingredient-item').querySelector('span').textContent;
         
         deleteIngredientFromRecipe(title, ingredient).then(() => {
-            console.log(`Ингредиент "${ingredient}" удалён из рецепта "${title}"`);
             renderRecipes();
         }).catch(error => {
             console.error('Ошибка при удалении ингредиента:', error);
@@ -245,7 +241,6 @@ document.querySelector('.recipes').addEventListener('click', (event) => {
     if (event.target.matches('.delete-step-btn')) {
         const step = event.target.closest('.step-item').querySelector('span').textContent.replace(/^Шаг \d+: /, '');
         deleteStepFromRecipe(title, step).then(() => {
-            console.log(`Шаг "${step}" удалён из рецепта "${title}"`);
             renderRecipes();
         }).catch(error => {
             console.error('Ошибка при удалении шага:', error);
@@ -255,7 +250,6 @@ document.querySelector('.recipes').addEventListener('click', (event) => {
     // Нажатие на кнопку "Удалить рецепт"
     if (event.target.matches('.delete-recipe-btn')) {
         deleteRecipe(title).then(() => {
-            console.log(`Рецепт "${title}" удалён`);
             renderRecipes();
         }).catch(error => {
             console.error('Ошибка при удалении рецепта:', error);
