@@ -1,6 +1,6 @@
 function App() {
   return (
-    <div>
+    <div className="block-faq">
     </div>
   );
 }
