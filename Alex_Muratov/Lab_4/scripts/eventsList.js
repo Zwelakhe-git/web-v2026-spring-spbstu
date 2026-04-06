@@ -1,21 +1,23 @@
+"use strict";
 import {eventsListFiller} from "./eventsListFiller.js"
 import {Event} from "./event.js"
 import {monthNames} from "./constants.js";
 
-const newEventsList = [];
+function loadData(){
+    let newEventsList = [];
 
-document.addEventListener("DOMContentLoaded", () => {
-    if (!localStorage.getItem("EventsList") || localStorage.getItem("EventsList") !== "undefined"){
+    if (!localStorage.getItem("EventsList") || localStorage.getItem("EventsList") === "Undefined"){
         eventsListFiller(20,newEventsList);
         localStorage.setItem("EventsList",JSON.stringify(newEventsList));
     }
+    else{
+        let parsedList = JSON.parse(localStorage.getItem("EventsList"));
+        newEventsList = parsedList.map((data)=>new Event(data.id,data.title,data.participants,new Date(data.date)));
+    }
+    return newEventsList;
+}
 
-})
-
-
-
-const parsedList = JSON.parse(localStorage.getItem("EventsList"))
-const restoredEvents = parsedList.map((data)=>new Event(data.id,data.title,data.participants,new Date(data.date)));
+export let restoredEvents = loadData()
 
 export function parseDateToString(date) {
     console.log(typeof date);
@@ -24,8 +26,6 @@ export function parseDateToString(date) {
     const day = String(date.getDate()).padStart(2,"0");
     return (day+' '+month+' '+year);
 }
-
-
 
 function sortByDate(events) {
     return events.sort((a,b) => a.date - b.date);
@@ -88,9 +88,9 @@ function getPersonEvents(events,person){
 
 console.log("Вывожу мероприятия Апреля",getEventsByMonths(restoredEvents,"Апрель"))
 
-console.log("Вывожу список всех участников",getParticipantList(parsedList));
+console.log("Вывожу список всех участников",getParticipantList(restoredEvents));
 
-console.log("Вывожу мероприятия Андрея Васильева",getPersonEvents(parsedList,"Андрей Васильев"));
+console.log("Вывожу мероприятия Андрея Васильева",getPersonEvents(restoredEvents,"Андрей Васильев"));
 
 console.log("Вывожу мероприятия сгруппированные по дате",groupByDate(restoredEvents));
 
