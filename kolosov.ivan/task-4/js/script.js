@@ -13,6 +13,11 @@ catch (error) {
 }
 
 renderUsers();
+console.log(groupUsersByFriendsAmount(users));
+console.log(getAllFriends(users));
+console.log(getAllUsersWhoHaveFriendWithID(users, 322));
+console.log(getUsersWithMoreFriendsThan(users, 2));
+console.log(getUsersWithNoFriends(users));
 
 function renderUsers() {
     const container = document.querySelector('.users')
@@ -127,7 +132,6 @@ document.querySelector('.users').addEventListener('click', (event) => {
         event.target.disabled = true;
         const userID = Number.parseInt(user.id);
         const userIndex = users.findIndex(user => user.id === userID);
-        console.log(userIndex);
         deleteUser(userIndex).then(() => {
             renderUsers();
         });
