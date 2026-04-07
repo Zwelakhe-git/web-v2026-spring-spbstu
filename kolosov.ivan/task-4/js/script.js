@@ -113,9 +113,9 @@ document.getElementById('addUser').addEventListener('click', (event) => {
     if (typeof users.findIndex(user => user.id === id) === -1) {
         addUser(id, name).then( () => {   
             renderUsers();
-            event.target.disabled = false;
         }).catch(error => {
             console.error("Error adding user: ", error);
+        }).finally(() => {
             event.target.disabled = false;
         });
     }
