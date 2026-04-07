@@ -2,10 +2,10 @@ class User {
     static #usersCount = 0;
 
     constructor(id, name) {
-        if (typeof name != "string") {
-            throw new Error("Name must be a string");
+        if (name.length === 0){
+            throw new Error("User can't be nameless");
         }
-        else if (typeof id != "number")
+        else if (typeof id != "number" || Number.isNaN(id))
         {
             throw new Error("ID must be a number");
         }
@@ -16,7 +16,7 @@ class User {
     }
 
     addFriend(friendID) {
-        if (typeof friendID != "number") {
+        if (typeof friendID != "number" || Number.isNaN(friendID)) {
             throw new Error("friendID must be a number ");
         }
         else if (friendID === this.id) {
