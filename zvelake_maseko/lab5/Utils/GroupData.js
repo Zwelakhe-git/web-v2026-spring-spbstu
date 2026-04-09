@@ -1,9 +1,9 @@
 function groupTransactionsByDay(transactions) {
     const grouped = new Map();
     transactions.forEach(transaction => {
-        // Форматируем дату в YYYY-MM-DD для группировки
+        
         const dateKey = transaction.date.toISOString().split('T')[0];
-        const dateLabel = transaction.date.toLocaleDateString('ru-RU'); // "09.04.2026"
+        const dateLabel = transaction.date.toLocaleDateString('ru-RU');
         if (!grouped.has(dateKey)) {
             grouped.set(dateKey, {
                 date: dateLabel,
@@ -17,7 +17,7 @@ function groupTransactionsByDay(transactions) {
         group.count += 1;
         group.transactions.push(transaction);
     });
-    // Сортируем по дате
+    
     return Array.from(grouped.values())
         .sort((a, b) => new Date(a.date.split('.').reverse().join('-')).getTime() -
         new Date(b.date.split('.').reverse().join('-')).getTime());
@@ -25,7 +25,7 @@ function groupTransactionsByDay(transactions) {
 function groupTransactionsByMonth(transactions) {
     const grouped = new Map();
     transactions.forEach(transaction => {
-        // Форматируем в YYYY-MM
+        
         const monthKey = `${transaction.date.getFullYear()}-${transaction.date.getMonth() + 1}`;
         const monthLabel = transaction.date.toLocaleDateString('ru-RU', {
             year: 'numeric',
