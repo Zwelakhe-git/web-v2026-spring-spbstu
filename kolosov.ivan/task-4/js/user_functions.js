@@ -1,13 +1,13 @@
 function groupUsersByFriendsAmount(users) {
-    let groups = [];
-    for (let i = 0; i < User.usersCount; i++) {
-        groups.push([]);
-    }
-
+    let groups = new Map;
     for (let user of users) {
-        groups[user.friendsCount].push(user.id);
+        if(!groups.has(user.friendsCount)) {
+            groups.set(user.friendsCount, [user.id]);
+        }
+        else {
+            groups.get(user.friendsCount).push(user.id);
+        }
     }
-
     return groups;
 }
 
