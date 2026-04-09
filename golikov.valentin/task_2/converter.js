@@ -14,15 +14,7 @@ function convertBase(num, fromBase, toBase) {
     }
 
     let decimalNumber;
-    
-    // if (typeof num === 'string') {
-    //     decimalNumber = parseInt(num, fromBase);
-    // } else {
-    //     decimalNumber = parseInt(String(num), fromBase);
-    // }
 
-    // Посколько JS сам может преобразовать данные в строку, проверку на строку можно убрать и расскоментировать код ниже. 
-    // Программа выдаст идентичные результаты
     decimalNumber = parseInt(num, fromBase);
 
     if (isNaN(decimalNumber)) {
