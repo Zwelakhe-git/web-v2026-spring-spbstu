@@ -12,11 +12,9 @@ function Chart({ data }) {
         margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
       >
         <CartesianGrid strokeDasharray="3 3" />
-        {/* XAxis теперь использует поле 'date' вместо '_date' */}
         <XAxis 
           dataKey="date" 
           tickFormatter={(date) => {
-            // Форматируем дату для красивого отображения (опционально)
             return new Date(date).toLocaleDateString('ru-RU', {
               day: '2-digit',
               month: '2-digit'
@@ -25,11 +23,10 @@ function Chart({ data }) {
         />
         <YAxis />
         <Tooltip 
-          formatter={(value) => `${value.toFixed(2)} ₽`} // Форматируем сумму
+          formatter={(value) => `${value.toFixed(2)} Руб`}
           labelFormatter={(label) => `Дата: ${new Date(label).toLocaleDateString('ru-RU')}`}
         />
         <Legend />
-        {/* Линия графика теперь использует поле 'amount' */}
         <Line 
           type="monotone" 
           dataKey="amount" 
@@ -37,7 +34,6 @@ function Chart({ data }) {
           name="Сумма транзакций"
           strokeWidth={2}
         />
-        {/* Опционально: добавить линию для ожидающих платежей */}
         {data[0]?.pendingAmount !== undefined && (
           <Line 
             type="monotone" 
