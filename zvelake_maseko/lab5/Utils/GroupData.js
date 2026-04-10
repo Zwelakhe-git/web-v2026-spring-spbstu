@@ -1,7 +1,6 @@
 function groupTransactionsByDay(transactions) {
     const grouped = new Map();
     transactions.forEach(transaction => {
-        
         const dateKey = transaction.date.toISOString().split('T')[0];
         const dateLabel = transaction.date.toLocaleDateString('ru-RU');
         if (!grouped.has(dateKey)) {
@@ -17,33 +16,9 @@ function groupTransactionsByDay(transactions) {
         group.count += 1;
         group.transactions.push(transaction);
     });
-    
     return Array.from(grouped.values())
-        .sort((a, b) => new Date(a.date.split('.').reverse().join('-')).getTime() -
-        new Date(b.date.split('.').reverse().join('-')).getTime());
+        .sort((a, b) => new Date(b.date.split('.').reverse().join('-')).getTime() -
+        new Date(a.date.split('.').reverse().join('-')).getTime());
 }
-function groupTransactionsByMonth(transactions) {
-    const grouped = new Map();
-    transactions.forEach(transaction => {
-        
-        const monthKey = `${transaction.date.getFullYear()}-${transaction.date.getMonth() + 1}`;
-        const monthLabel = transaction.date.toLocaleDateString('ru-RU', {
-            year: 'numeric',
-            month: 'long'
-        });
-        if (!grouped.has(monthKey)) {
-            grouped.set(monthKey, {
-                date: monthLabel,
-                totalAmount: 0,
-                count: 0,
-                transactions: []
-            });
-        }
-        const group = grouped.get(monthKey);
-        group.totalAmount += transaction.amount;
-        group.count += 1;
-        group.transactions.push(transaction);
-    });
-    return Array.from(grouped.values());
-}
-export { groupTransactionsByDay, groupTransactionsByMonth };
+
+export { groupTransactionsByDay };
