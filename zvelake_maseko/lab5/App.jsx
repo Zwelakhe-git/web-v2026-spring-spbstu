@@ -4,56 +4,66 @@ import Index from './Components/Main.jsx'
 import TransactionsPreview from './Components/TransactionsPreview.jsx';
 import CreateTransaction from './Components/CreateTransaction.jsx';
 
+import AccountModel from './Models/AccountModel.js';
 import {generateRandomTransactions} from './Models/DataGenerator.js';
-import {groupTransactionsByDay, groupTransactionsByMonth} from './Utils/GroupData.js'
 import {prepareChartData} from './Utils/ChartData.js'
 
 
-const sections = {
-    0: Index,
-    1: CreateTransaction,
-    2: Statistics,
-    3: TransactionsPreview
-};
-
 function App(){
     const [currentSection, setCurrentSection] = useState(0);
-    const [prevSection, setPrevSection] = useState(currentSection);
-    const [transactionsList, setTransactionsList] = useState(() => {
-        let expenses = Array.from(generateRandomTransactions(10)).map(tr => {
-            tr.amount *= -1;
-            return tr;
-        });
-        return [...generateRandomTransactions(10), ...expenses];
-    });
+    const [transactionsList, setTransactionsList] = useState([]);
+    const [currentAccount, setCurrentAccount] = useState(null);
+    const [balance, setBalance] = useState(1000000);
 
-    let groupedByDay = [];
+    useEffect(() => {
+        try{
+            const account = new AccountModel('John Doe', new Date('2002-11-16'), balance);
+            const expenses = generateRandomTransactions(10);
+            const incomes = generateRandomTransactions(10);
+            
+            expenses.forEach(tr => {
+                tr.amount *= -1;
+                return tr;
+            });
+            const transactions = [...incomes, ...expenses];
+            transactions.forEach(tr => {
+                account.balance += tr.amount;
+                account.transactionHistory.push(tr);
+            });
+
+            setCurrentAccount(account);
+            setBalance(account.balance);
+            setTransactionsList(account.transactionHistory);
+            
+        } catch(err){
+            console.log(err);
+        }
+    },[]);
+
     let chartData = [];
     useEffect(()=>{
-        groupedByDay = groupTransactionsByDay(transactionsList);
         chartData = prepareChartData(transactionsList);
     }, [transactionsList]);
 
     return (<>
     { currentSection === 0 && <Index
-                                prevSection={prevSection}
+                                account={currentAccount}
                                 setCurrentSection={setCurrentSection}
-                                setPrevSection={setPrevSection}/>}
+                                currentSection={currentSection}
+                                transactionsList={transactionsList}/>}
     { currentSection === 1 && <CreateTransaction
-                                prevSection={prevSection}
                                 setCurrentSection={setCurrentSection}
-                                setPrevSection={setPrevSection}
-                                setTransactionsList={setTransactionsList}/>}
+                                setTransactionsList={setTransactionsList}
+                                currentSection={currentSection}
+                                account={currentAccount}/>}
     { currentSection === 2 && <Statistics
-                                prevSection={prevSection}
                                 setCurrentSection={setCurrentSection}
-                                setPrevSection={setPrevSection}
-                                transactionsList={transactionsList}/>}
+                                transactionsList={transactionsList}
+                                currentSection={currentSection}/>}
     { currentSection === 3 && <TransactionsPreview
-                                prevSection={prevSection}
                                 setCurrentSection={setCurrentSection}
-                                setPrevSection={setPrevSection}
-                                transactionsList={transactionsList}/>}
+                                transactionsList={transactionsList}
+                                currentSection={currentSection}/>}
     </>);
 }
 
