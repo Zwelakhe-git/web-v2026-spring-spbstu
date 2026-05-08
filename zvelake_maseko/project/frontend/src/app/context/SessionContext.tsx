@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { sessionInterface } from '../data/session';
+import { sessionInterface } from '../data/types';
 
 interface SessionContextType {
     user: sessionInterface | undefined;
@@ -14,7 +14,7 @@ const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
 export function SessionProvider({ children }: {children: ReactNode}){
     const [user, setUser] = useState<sessionInterface|undefined>(undefined);
-    const [cartId, setCartId] = useState<string | null>(sessionStorage.getItem('user:cart_id'))
+    const [cartId, setCartId] = useState<string | null>(sessionStorage.getItem('user:cart_id'));
 
     useEffect(()=>{
         const stored = sessionStorage.getItem('user');

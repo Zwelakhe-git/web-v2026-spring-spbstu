@@ -1,55 +1,96 @@
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { Product } from '../data/products';
-import { sessionInterface } from '../data/session';
+import { createContext, useContext, useState, ReactNode, useEffect, useRef } from 'react';
+import { CartItem, Product } from '../data/types';
 import { SERVER_BASE_URL } from '../utils/settings';
 import { useSession } from './SessionContext';
-
-export interface CartItem extends Product {
-  quantity: number;
-}
+import { useData } from './DataContext';
 
 interface CartContextType {
-  items: CartItem[];
-  addToCart: (product: Product) => void;
+  cartItems: CartItem[];
+  addToCart: (product: Product, quantity?: number) => void;
   removeFromCart: (productId: number) => void;
   updateQuantity: (productId: number, quantity: number) => void;
   clearCart: () => void;
-  totalItems: number;
-  totalPrice: number;
+  getTotalItems: () => number;
+  getTotalPrice: () => number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
-  const [session, setSession] = useState<sessionInterface | null>(null);
   const { user, cartId, setCartId, removeCartId } = useSession();
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+   const {products} = useData();
+  const cartRestored = useRef(false);
+  
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(cartItems));
+  }, [cartItems]);
+  
 
-  let cookies = Object.fromEntries(
-    document.cookie.split(':').map(c => c.split('='))
-  );
   useEffect(()=>{
-    const stored = sessionStorage.getItem('user');
-    if(stored){
-      setSession(JSON.parse(stored) as sessionInterface)
-    }
-  }, []);
+      if(user && cartId){
+          const load = async ()=>{
+              try {
+                  let response = await fetch(`${SERVER_BASE_URL}/api/orders/cart/read`, {
+                      method: 'POST',
+                      headers: {
+                      'Content-Type': 'application/json'
+                      },
+                      body: JSON.stringify({
+                      cartId: cartId,
+                      customerId: user?.id
+                      })
+                  });
+                  let json = await response.json();
+                  if(json.success){
+                      const data = json.cart_data;
+                      console.log(`loaded ${Object.keys(data.items).length} items from cart`);
+                      if(data.cart_id !== cartId){
+                          setCartId(data.cart_id);
+                          sessionStorage.setItem('user:cart_id', data.cart_id);
+                      }
+                     
+                      console.log(Object.keys(data.items).length)
+                      for(const [productId, qty] of Object.entries(data.items)){
+                          const existing = products.find(pr => Number(pr.id) === Number(productId));
+                          if(existing){
+                            console.log(`Product ${productId} added to cart`);
+                              addToCart(existing);
+                              updateQuantity(Number(productId), Number(qty));
+                          } else {
+                            console.log(`Product ${productId} not added to cart`);
+                          }
+                      }
+                  } else {
+                      console.log(json.message);
+                  }
+                  cartRestored.current = true;
+              } catch(err){
+                  console.error(err);
+              }
+          }
+          if(products.length === 0) return;
+          if(!cartRestored.current) load();
+      } else {
+          console.log('no cart to restore');
+      }
+  }, [cartId, user, products]);
 
   const addToCart = (product: Product) => {
-    //let cartId = sessionStorage.getItem('user:cart_id') || cookies.cart_id;
-    setItems(current => {
+    
+    setCartItems(current => {
       
       let newCart: CartItem[] = [];
-      const existing = current.find(item => item.id === product.id);
+      const existing = current.find(item => item.product.id === product.id);
       if (existing) {
         
         newCart = current.map(item =>
-          item.id === product.id
+          item.product.id === product.id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       } else {
-        newCart = [...current, {...product, quantity: 1}];
+        newCart = [...current, {product: product, quantity: 1}];
       }
       if(cartId){
         fetch(`${SERVER_BASE_URL}/api/orders/cart/id/${cartId}/add`,{
@@ -58,7 +99,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            customerId: session?.id,
+            customerId: user?.id,
             productId: product.id,
             quantity: existing ? existing.quantity + 1 : 1
           })
@@ -95,7 +136,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const removeFromCart = (productId: number) => {
-    //let cartId = sessionStorage.getItem('user:cart_id') || cookies.cart_id;
     fetch(`${SERVER_BASE_URL}/api/orders/cart/id/${cartId}/remove`, {
       method: 'POST',
       headers: {
@@ -106,8 +146,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         productId: productId
       })
     });
-    setItems(current => {
-      let newCart = current.filter(item => item.id !== productId);
+    setCartItems(current => {
+      let newCart = current.filter(item => item.product.id !== productId);
       if(newCart.length === 0){ removeCartId(); sessionStorage.removeItem('user:cart_id'); }
       return newCart;
     });
@@ -118,54 +158,57 @@ export function CartProvider({ children }: { children: ReactNode }) {
       removeFromCart(productId);
       return;
     }
-    //let cartId = sessionStorage.getItem('user:cart_id') || cookies.cart_id;
     fetch(`${SERVER_BASE_URL}/api/orders/cart/id/${cartId}/add`,{
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        customerId: session?.id,
+        customerId: user?.id,
         productId: productId,
         quantity: quantity
       })
     });
-    setItems(current =>
-      current.map(item =>
-        item.id === productId ? { ...item, quantity } : item
+    setCartItems(prev =>
+      prev.map(item =>
+        item.product.id === productId ? { ...item, quantity } : item
       )
     );
   };
 
   const clearCart = () => {
-    //let cartId = sessionStorage.getItem('user:cart_id') || cookies.cart_id;
     fetch(`${SERVER_BASE_URL}/api/orders/cart/id/${cartId}/clear`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        customerId: session?.id
+        customerId: user?.id
       })
     });
     sessionStorage.removeItem('user:cart_id');
     removeCartId();
-    setItems([]);
+    setCartItems([]);
   };
 
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const getTotalItems = () => {
+    return cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  };
+
+  const getTotalPrice = () => {
+    return cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  };
 
   return (
     <CartContext.Provider
       value={{
-        items,
+        cartItems,
         addToCart,
         removeFromCart,
         updateQuantity,
         clearCart,
-        totalItems,
-        totalPrice
+        getTotalItems,
+        getTotalPrice,
       }}
     >
       {children}
